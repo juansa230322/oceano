@@ -746,6 +746,23 @@
         earnedBadgeIds: ['badge-1', 'badge-2', 'badge-7']
       },
       {
+        id: 'u-vol-eduardo',
+        name: 'Eduardo Stiven Prieto Espitia',
+        email: 'eduardo.prieto@vidamarina.org',
+        password: 'Voluntario123!',
+        role: 'voluntario',
+        status: 'activo',
+        location: 'Cartagena',
+        interests: ['Limpieza de playas y fondos marinos', 'Restauración y siembra de corales'],
+        avatar: '🐬',
+        xp: 150,
+        level: 2,
+        earnedBadgeIds: ['badge-1'],
+        participations: [
+          { id: 'p-eduardo-1', activityName: 'Siembra de Corales en Bahía Esmeralda', hours: 6, registeredAt: '2026-09-12', status: 'completada' }
+        ]
+      },
+      {
         id: 'u-expert-1',
         name: 'Dra. Marina Ríos',
         email: 'dr.marina@vidamarina.org',
@@ -1138,6 +1155,9 @@
       const [calendarFilter, setCalendarFilter] = useState('Todos');
       const [quickFilter, setQuickFilter] = useState(null);
       const [selectedActivityModal, setSelectedActivityModal] = useState(null);
+      const selectedBadgeObj = useMemo(() => {
+        return badges.find(b => b.id === grantBadgeId) || badges.find(b => b.name === 'Voluntario del Océano') || badges[0];
+      }, [badges, grantBadgeId]);
       
       // Admin: Crear y Editar Actividad
       // Notificaciones de Reconocimientos (Insignias otorgadas por Admin)
@@ -1189,8 +1209,8 @@
       const [badgeFilter, setBadgeFilter] = useState('all');
       const [unlockedBadgeCelebration, setUnlockedBadgeCelebration] = useState(null);
       const [grantBadgeModalOpen, setGrantBadgeModalOpen] = useState(false);
-      const [grantVolunteerId, setGrantVolunteerId] = useState('');
-      const [grantBadgeId, setGrantBadgeId] = useState('badge-2');
+      const [grantVolunteerId, setGrantVolunteerId] = useState('u-vol-eduardo');
+      const [grantBadgeId, setGrantBadgeId] = useState('badge-4'); // Voluntario del Océano
 
       // Foro
       const [forumCategory, setForumCategory] = useState('Todas');
@@ -2398,27 +2418,18 @@
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
-                    {isAdmin ? (
-                      <button
-                        onClick={() => handleOpenCreateActivity()}
-                        className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-amber-500/25 hover:scale-105 transition-all flex items-center gap-1.5"
-                      >
-                        <span>➕</span> Nueva Convocatoria (Admin)
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          setLoginEmail('admin@vidamarina.org');
-                          setLoginPassword('admin123');
-                          setAuthTab('login');
-                          setAuthModalOpen(true);
-                        }}
-                        className="px-3.5 py-2 rounded-xl bg-[#0b2545] border border-amber-500/40 text-amber-300 hover:bg-amber-500/10 text-xs font-bold transition-all flex items-center gap-1.5"
-                        title="Inicia sesión como Administradora General para crear y gestionar actividades"
-                      >
-                        <span>👑</span> Acceso Admin (Crear Actividades)
-                      </button>
-                    )}
+                    <button
+                      onClick={() => {
+                        if (!isAdmin) {
+                          const adminAcc = users.find(u => u.role === 'administrador') || users[0];
+                          setCurrentUserId(adminAcc.id);
+                        }
+                        handleOpenCreateActivity();
+                      }}
+                      className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-amber-500/25 hover:scale-105 transition-all flex items-center gap-1.5"
+                    >
+                      <span className="text-purple-900 font-black text-base">+</span> Crear Actividad
+                    </button>
 
                     <button
                       onClick={() => setQuickFilter(quickFilter === 'this-month' ? null : 'this-month')}
@@ -4008,150 +4019,47 @@
             </div>
           )}
 
-          {/* 4. MODAL CREAR O EDITAR ACTIVIDAD (ADMIN BACKLOG HU-P-01) */}
+                    {/* 4. MODAL CREAR O EDITAR ACTIVIDAD (DISEÑO EXACTO SEGÚN IMAGEN 2) */}
           {createActivityModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-              <div className="relative w-full max-w-lg bg-[#07192f] border border-amber-500/40 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+              <div className="relative w-full max-w-lg bg-[#07192f] border border-cyan-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
                 <button
+                  type="button"
                   onClick={() => setCreateActivityModalOpen(false)}
-                  className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg p-1"
+                  className="absolute top-5 right-5 text-slate-400 hover:text-white text-lg p-1 transition-colors"
                 >
                   ✕
                 </button>
 
-                <div className="text-center space-y-1">
-                  <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                    {editingActivity ? 'Editar Convocatoria' : 'Backlog HU-P-01'}
-                  </span>
-                  <h3 className="text-2xl font-black text-white">
-                    {editingActivity ? 'Editar Actividad del Calendario' : 'Crear Nueva Actividad en Calendario'}
+                <div className="flex items-center gap-2">
+                  <span className="text-purple-400 font-extrabold text-2xl leading-none">+</span>
+                  <h3 className="text-xl font-bold text-white tracking-tight">
+                    {editingActivity ? 'Editar Actividad de Conservación' : 'Nueva Actividad de Conservación'}
                   </h3>
-                  <p className="text-xs text-slate-400">Permisos exclusivos de la Administradora General</p>
                 </div>
 
-                <form onSubmit={handleSaveActivitySubmit} className="space-y-3.5">
+                <form onSubmit={handleSaveActivitySubmit} className="space-y-3.5 pt-1">
+                  {/* Nombre / Título */}
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-300">Título de la Convocatoria</label>
+                    <label className="text-xs font-semibold text-slate-300">Nombre / Título</label>
                     <input
                       type="text"
                       required
-                      placeholder="ej. Monitoreo Nocturno de Tortuga Carey"
+                      placeholder="ej. Siembra de Corales en Bahía Esmeralda"
                       value={actForm.title}
                       onChange={e => setActForm({ ...actForm, title: e.target.value })}
-                      className="w-full bg-[#0b2545] border border-cyan-500/30 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+                      className="w-full bg-[#0c2340] border border-cyan-900/60 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
                     />
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-300">Descripción Detallada</label>
-                    <textarea
-                      rows="2"
-                      required
-                      placeholder="Objetivos de la jornada, especies a impactar y dinámica de voluntariado..."
-                      value={actForm.description}
-                      onChange={e => setActForm({ ...actForm, description: e.target.value })}
-                      className="w-full bg-[#0b2545] border border-cyan-500/30 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
-                    ></textarea>
-                  </div>
-
-                  {/* REQUISITOS OBLIGATORIOS PARA VOLUNTARIOS */}
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-amber-300 flex items-center justify-between">
-                      <span className="flex items-center gap-1.5">
-                        <span>📋</span> Requisitos y Equipamiento para Voluntarios
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-normal">Obligatorio</span>
-                    </label>
-                    <textarea
-                      rows="2"
-                      required
-                      placeholder="ej. Protector solar biodegradable, calzado cerrado acuático, hidratación personal, ser mayor de edad..."
-                      value={actForm.requirements}
-                      onChange={e => setActForm({ ...actForm, requirements: e.target.value })}
-                      className="w-full bg-[#0b2545] border border-amber-500/40 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-amber-400"
-                    ></textarea>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
+                  {/* Fila: Tipo de Actividad & Cupos Totales */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-300">Fecha (AAAA-MM-DD)</label>
-                      <input
-                        type="date"
-                        required
-                        value={actForm.date}
-                        onChange={e => setActForm({ ...actForm, date: e.target.value })}
-                        className="w-full bg-[#0b2545] border border-cyan-500/30 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-300">Horario</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="08:00 - 12:00"
-                        value={actForm.time}
-                        onChange={e => setActForm({ ...actForm, time: e.target.value })}
-                        className="w-full bg-[#0b2545] border border-cyan-500/30 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-300">Lugar / Ubicación Costera</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="ej. Bahía Solano, Chocó / Playa Blanca"
-                      value={actForm.location}
-                      onChange={e => setActForm({ ...actForm, location: e.target.value })}
-                      className="w-full bg-[#0b2545] border border-cyan-500/30 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-300">Cupos</label>
-                      <input
-                        type="number"
-                        min="1"
-                        required
-                        value={actForm.volunteer_spots}
-                        onChange={e => setActForm({ ...actForm, volunteer_spots: e.target.value })}
-                        className="w-full bg-[#0b2545] border border-cyan-500/30 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-300">Horas Acred.</label>
-                      <input
-                        type="number"
-                        min="1"
-                        required
-                        value={actForm.volunteer_hours}
-                        onChange={e => setActForm({ ...actForm, volunteer_hours: e.target.value })}
-                        className="w-full bg-[#0b2545] border border-cyan-500/30 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-300">Puntos XP</label>
-                      <input
-                        type="number"
-                        min="10"
-                        step="10"
-                        required
-                        value={actForm.xp_reward}
-                        onChange={e => setActForm({ ...actForm, xp_reward: e.target.value })}
-                        className="w-full bg-[#0b2545] border border-cyan-500/30 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-300">Tipo de Actividad</label>
+                      <label className="text-xs font-semibold text-slate-300">Tipo de Actividad</label>
                       <select
                         value={actForm.activity_type}
                         onChange={e => setActForm({ ...actForm, activity_type: e.target.value })}
-                        className="w-full bg-[#0b2545] border border-cyan-500/30 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+                        className="w-full bg-[#0c2340] border border-cyan-900/60 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400"
                       >
                         <option value="Conservación">Conservación</option>
                         <option value="Limpieza">Limpieza de playas</option>
@@ -4159,25 +4067,116 @@
                         <option value="Educación">Educación ambiental</option>
                       </select>
                     </div>
+
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-300">Coordinación</label>
+                      <label className="text-xs font-semibold text-slate-300">Cupos Totales</label>
                       <input
-                        type="text"
+                        type="number"
+                        min="1"
                         required
-                        placeholder="ej. Dra. Marina Ríos"
-                        value={actForm.responsible}
-                        onChange={e => setActForm({ ...actForm, responsible: e.target.value })}
-                        className="w-full bg-[#0b2545] border border-cyan-500/30 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+                        placeholder="30"
+                        value={actForm.volunteer_spots}
+                        onChange={e => setActForm({ ...actForm, volunteer_spots: e.target.value })}
+                        className="w-full bg-[#0c2340] border border-cyan-900/60 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400"
                       />
                     </div>
                   </div>
 
-                  <button
-                    type="submit"
-                    className="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-amber-500/25"
-                  >
-                    {editingActivity ? 'Guardar Cambios de la Actividad' : 'Guardar Actividad en el Calendario'}
-                  </button>
+                  {/* Fila: Fecha & Horario */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-slate-300">Fecha</label>
+                      <input
+                        type="date"
+                        required
+                        value={actForm.date}
+                        onChange={e => setActForm({ ...actForm, date: e.target.value })}
+                        className="w-full bg-[#0c2340] border border-cyan-900/60 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-slate-300">Horario</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="08:00 AM - 12:00 PM"
+                        value={actForm.time}
+                        onChange={e => setActForm({ ...actForm, time: e.target.value })}
+                        className="w-full bg-[#0c2340] border border-cyan-900/60 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Fila: Ubicación / Punto de Encuentro & Responsable Científico */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-slate-300">Ubicación / Punto de Encuentro</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Playa Coral, Faro Norte"
+                        value={actForm.location}
+                        onChange={e => setActForm({ ...actForm, location: e.target.value })}
+                        className="w-full bg-[#0c2340] border border-cyan-900/60 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-slate-300">Responsable Científico</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Dra. Marina Ríos"
+                        value={actForm.responsible}
+                        onChange={e => setActForm({ ...actForm, responsible: e.target.value })}
+                        className="w-full bg-[#0c2340] border border-cyan-900/60 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Descripción */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-300">Descripción</label>
+                    <textarea
+                      rows="3"
+                      required
+                      placeholder="Detalles sobre las tareas ecológicas que realizaremos..."
+                      value={actForm.description}
+                      onChange={e => setActForm({ ...actForm, description: e.target.value })}
+                      className="w-full bg-[#0c2340] border border-cyan-900/60 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                    ></textarea>
+                  </div>
+
+                  {/* Requisitos (separados por coma) */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-300">Requisitos (separados por coma)</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Termo de agua, Calzado cerrado, Protector solar biodegradable"
+                      value={actForm.requirements}
+                      onChange={e => setActForm({ ...actForm, requirements: e.target.value })}
+                      className="w-full bg-[#0c2340] border border-cyan-900/60 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+
+                  {/* Botones de acción inferiores (Exactos a Imagen 2) */}
+                  <div className="grid grid-cols-2 gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setCreateActivityModalOpen(false)}
+                      className="w-full py-3 rounded-xl bg-[#132742] hover:bg-[#1a3356] text-white font-bold text-xs transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="w-full py-3 rounded-xl bg-[#f5b726] hover:bg-[#ffc53d] text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg transition-transform hover:scale-[1.02]"
+                    >
+                      {editingActivity ? 'GUARDAR CAMBIOS' : 'CREAR ACTIVIDAD'}
+                    </button>
+                  </div>
                 </form>
               </div>
             </div>
@@ -4308,88 +4307,95 @@
             </div>
           )}
 
-          {/* 7. MODAL OTORGAR INSIGNIA OFICIAL (ADMIN) */}
+                    {/* 7. MODAL OTORGAR INSIGNIA OFICIAL (DISEÑO EXACTO SEGÚN IMAGEN 3) */}
           {grantBadgeModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-              <div className="relative w-full max-w-lg bg-[#07192f] border border-amber-500/40 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+              <div className="relative w-full max-w-md bg-[#07192f] border border-cyan-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
                 <button
+                  type="button"
                   onClick={() => setGrantBadgeModalOpen(false)}
-                  className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg p-1"
+                  className="absolute top-5 right-5 text-slate-400 hover:text-white text-lg p-1 transition-colors"
                 >
                   ✕
                 </button>
 
-                <div className="text-center space-y-1">
-                  <span className="text-3xl">👑</span>
-                  <h3 className="text-xl font-black text-white">Otorgar Reconocimiento Oficial</h3>
-                  <p className="text-xs text-slate-400">Asigna insignias directamente a cualquier usuario o voluntario y envíale la notificación</p>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">👑</span>
+                    <h3 className="text-xl font-bold text-white tracking-tight">Otorgar Reconocimiento Oficial</h3>
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Como Administradora (Dra. Marina Ríos), concede una insignia oficial a un voluntario por su compromiso con los mares.
+                  </p>
                 </div>
 
-                <form onSubmit={handleGrantBadgeSubmit} className="space-y-4">
+                <form onSubmit={handleGrantBadgeSubmit} className="space-y-4 pt-1">
+                  {/* Voluntario Destinatario */}
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-300">Seleccionar Usuario o Voluntario Receptor</label>
+                    <label className="text-xs font-semibold text-slate-300">Voluntario Destinatario</label>
                     <select
                       value={grantVolunteerId}
                       onChange={e => setGrantVolunteerId(e.target.value)}
                       required
-                      className="w-full bg-[#0b2545] border border-cyan-500/30 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none"
+                      className="w-full bg-[#0c2340] border border-cyan-900/60 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400"
                     >
-                      <option value="">-- Elige un usuario receptor --</option>
+                      <option value="">-- Selecciona un voluntario --</option>
                       {users.map(u => (
-                        <option key={u.id} value={u.id}>{u.avatar} {u.name} ({u.email}) - {u.role}</option>
+                        <option key={u.id} value={u.id}>
+                          {u.name} ({u.getRoleTitle()}) • {u.location}
+                        </option>
                       ))}
                     </select>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-300">Seleccionar Insignia Oficial a Otorgar</label>
-                    <div className="grid grid-cols-2 gap-2 max-h-56 overflow-y-auto p-1 bg-[#051329] rounded-2xl border border-slate-800">
-                      {badges.map(b => {
-                        const target = users.find(u => u.id === grantVolunteerId);
-                        const alreadyHas = target ? (target.earnedBadgeIds.includes(b.id) || target.earnedBadgeIds.includes(b.code)) : false;
-                        const isSelected = grantBadgeId === b.id;
-                        return (
-                          <div
-                            key={b.id}
-                            onClick={() => setGrantBadgeId(b.id)}
-                            className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all flex items-center gap-2 ${
-                              isSelected
-                                ? 'bg-amber-500/20 border-amber-400 text-white'
-                                : 'bg-[#07192f] border-slate-800 text-slate-300 hover:border-slate-700'
-                            }`}
-                          >
-                            <span className="text-2xl">{b.icon}</span>
-                            <div className="min-w-0 flex-1">
-                              <div className="text-xs font-bold truncate flex items-center justify-between">
-                                <span>{b.name}</span>
-                                <span className="text-[9px] text-amber-400 font-black">{b.code}</span>
-                              </div>
-                              <div className="text-[10px] text-slate-400 truncate">{b.requirement}</div>
-                              {alreadyHas && (
-                                <span className="text-[9px] text-emerald-400 font-bold">✓ Ya obtenida</span>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
+                  {/* Insignia a Otorgar */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-300">Insignia a Otorgar</label>
+                    <select
+                      value={grantBadgeId}
+                      onChange={e => setGrantBadgeId(e.target.value)}
+                      className="w-full bg-[#0c2340] border border-cyan-900/60 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400"
+                    >
+                      {badges.map(b => (
+                        <option key={b.id} value={b.id}>
+                          {b.icon} {b.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Tarjeta de Vista Previa de la Insignia (Exacta a Imagen 3) */}
+                  <div className="bg-[#081d38] border border-blue-600/40 rounded-2xl p-6 text-center space-y-2">
+                    <div className="w-14 h-14 mx-auto rounded-full bg-blue-500/20 border border-blue-400/40 flex items-center justify-center text-3xl shadow-lg shadow-blue-500/20 animate-float">
+                      {selectedBadgeObj?.icon || '🐠'}
                     </div>
+                    <h4 className="text-base font-bold text-white tracking-tight">
+                      {selectedBadgeObj?.name || 'Voluntario del Océano'}
+                    </h4>
+                    <p className="text-xs text-slate-300 leading-relaxed max-w-xs mx-auto">
+                      {selectedBadgeObj?.description || selectedBadgeObj?.requirement || 'Constancia activa en jornadas y protección de costas marinas.'}
+                    </p>
+                    <p className="text-xs font-bold text-amber-300 flex items-center justify-center gap-1 pt-1">
+                      <span>✨</span> Concede +{selectedBadgeObj?.xp || 150} XP y se guardará permanentemente en su cuenta.
+                    </p>
                   </div>
 
-                  <div className="p-3 bg-[#0b2545]/80 rounded-2xl border border-amber-500/30 text-[11px] text-amber-200 space-y-1">
-                    <p className="font-bold flex items-center gap-1.5 text-white">
-                      <span>✉️</span> Mensaje Oficial que Recibirá el Usuario:
-                    </p>
-                    <p className="italic text-slate-300">
-                      "La Administradora General te ha otorgado la insignia oficial. ¡Felicitaciones por tu labor y compromiso con la conservación marina y el ODS 14!"
-                    </p>
+                  {/* Botones de acción inferiores (Exactos a Imagen 3) */}
+                  <div className="grid grid-cols-2 gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setGrantBadgeModalOpen(false)}
+                      className="w-full py-3 rounded-xl bg-[#132742] hover:bg-[#1a3356] text-white font-bold text-xs transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="w-full py-3 rounded-xl bg-[#f5b726] hover:bg-[#ffc53d] text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-1.5 transition-transform hover:scale-[1.02]"
+                    >
+                      <span>🎖️</span> OTORGAR INSIGNIA
+                    </button>
                   </div>
-
-                  <button
-                    type="submit"
-                    className="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-amber-500/25"
-                  >
-                    Otorgar Insignia y Enviar Mensaje
-                  </button>
                 </form>
               </div>
             </div>

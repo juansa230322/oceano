@@ -56,11 +56,11 @@ async function runAllTests() {
   console.log('🧪 INICIANDO SUITE DE CASOS DE ACEPTACIÓN - SPRINT 2 Y BACKLOG');
   console.log('================================================================\n');
 
-  // Inicializar servidor de prueba
+  // Inicializar servidor de prueba en 127.0.0.1
   server = http.createServer(app);
-  await new Promise(resolve => server.listen(0, resolve));
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const port = server.address().port;
-  baseUrl = `http://localhost:${port}`;
+  baseUrl = `http://127.0.0.1:${port}`;
 
   const db = getDatabase();
 
